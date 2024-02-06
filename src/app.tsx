@@ -1,3 +1,7 @@
 export function App() {
-  return <h1>expert notes</h1>;
+  return (
+    <div className="bg-rocketseat w-16">
+      <h1>hello world</h1>
+    </div>
+  )
 }
