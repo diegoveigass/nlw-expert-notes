@@ -2,7 +2,8 @@ import { ChangeEvent, useState } from 'react'
 import logo from '../assets/logo-nlw-expert.svg'
 import { NewNoteCard } from '../components/new-note-card'
 import { NoteCard } from '../components/note-card'
-import { UserButton } from '@clerk/clerk-react'
+import { UserButton, useUser } from '@clerk/clerk-react'
+import { api } from '../lib/axios'
 
 interface Note {
   id: string
@@ -12,6 +13,9 @@ interface Note {
 
 export function Home() {
   const [search, setSearch] = useState('')
+  const { user } = useUser()
+
+  console.log(user)
 
   const [notes, setNotes] = useState<Note[]>(() => {
     const notesOnStorage = localStorage.getItem('@nlw-expert/notes')
@@ -22,9 +26,15 @@ export function Home() {
     return []
   })
 
-  function onNoteCreated(content: string) {
+  async function onNoteCreated(content: string) {
+    const response = await api.post<Note>('/notes', {
+      date: new Date(),
+      content,
+      clerkUserId: user?.id,
+    })
+
     const newNote = {
-      id: crypto.randomUUID(),
+      id: response.data.id,
       date: new Date(),
       content,
     }
