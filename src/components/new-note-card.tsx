@@ -1,18 +1,28 @@
 import * as Dialog from '@radix-ui/react-dialog'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { toast } from 'sonner'
-
-interface NewNoteCardProps {
-  onNoteCreated: (content: string) => void
-}
+import { createNote } from '../api/create-note'
+import { useUser } from '@clerk/clerk-react'
 
 let speechRecognition: SpeechRecognition | null = null
 
-export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
+export function NewNoteCard() {
   const [shouldShowOnboarding, setShouldShowOnboarding] = useState(true)
   const [isRecording, setIsRecording] = useState(false)
   const [content, setContent] = useState('')
+
+  const { user } = useUser()
+
+  const queryClient = useQueryClient()
+
+  const { mutateAsync: createNoteFn } = useMutation({
+    mutationFn: createNote,
+    async onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['notes', user?.id] })
+    },
+  })
 
   function handleStartEditor() {
     setShouldShowOnboarding(false)
@@ -30,8 +40,13 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
     event.preventDefault()
 
     if (content === '') return
+    if (!user) return
 
-    onNoteCreated(content)
+    createNoteFn({
+      clerkUserId: user?.id,
+      content,
+      date: new Date().toISOString(),
+    })
 
     setContent('')
     setShouldShowOnboarding(true)

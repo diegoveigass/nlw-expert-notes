@@ -6,18 +6,17 @@ import { X } from 'lucide-react'
 interface NoteCardProps {
   note: {
     id: string
-    date: Date
+    created_at: string
     content: string
   }
-  onNoteDeleted: (id: string) => void
 }
 
-export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
+export function NoteCard({ note }: NoteCardProps) {
   return (
     <Dialog.Root>
       <Dialog.Trigger className="rounded-md text-left flex flex-col bg-slate-800 outline-none p-5 gap-3 overflow-hidden relative hover:ring-2 hover:ring-slate-600 focus-visible:ring-2 focus-visible:ring-lime-400">
         <span className="text-sm font-medium text-slate-300">
-          {formatDistanceToNow(note.date, {
+          {formatDistanceToNow(note.created_at, {
             locale: ptBR,
             addSuffix: true,
           })}
@@ -36,7 +35,7 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
 
           <div className="flex flex-1 flex-col gap-3 p-5">
             <span className="text-sm font-medium text-slate-300">
-              {formatDistanceToNow(note.date, {
+              {formatDistanceToNow(note.created_at, {
                 locale: ptBR,
                 addSuffix: true,
               })}
@@ -48,7 +47,7 @@ export function NoteCard({ note, onNoteDeleted }: NoteCardProps) {
           <button
             className="w-full bg-slate-800 py-4 text-center text-sm text-slate-300 outline-none font-medium group"
             type="button"
-            onClick={() => onNoteDeleted(note.id)}
+            // onClick={() => onNoteDeleted(note.id)}
           >
             Deseja{' '}
             <span className="text-red-400 group-hover:underline">

@@ -3,56 +3,46 @@ import logo from '../assets/logo-nlw-expert.svg'
 import { NewNoteCard } from '../components/new-note-card'
 import { NoteCard } from '../components/note-card'
 import { UserButton, useUser } from '@clerk/clerk-react'
-import { api } from '../lib/axios'
-
-interface Note {
-  id: string
-  date: Date
-  content: string
-}
+import { useQuery } from '@tanstack/react-query'
+import { getNotes } from '../api/get-notes'
 
 export function Home() {
   const [search, setSearch] = useState('')
+
   const { user } = useUser()
 
-  console.log(user)
-
-  const [notes, setNotes] = useState<Note[]>(() => {
-    const notesOnStorage = localStorage.getItem('@nlw-expert/notes')
-    if (notesOnStorage) {
-      return JSON.parse(notesOnStorage)
-    }
-
-    return []
+  const { data: notes } = useQuery({
+    queryKey: ['notes', user?.id],
+    queryFn: () => getNotes({ clerkUserId: user?.id }),
   })
 
-  async function onNoteCreated(content: string) {
-    const response = await api.post<Note>('/notes', {
-      date: new Date(),
-      content,
-      clerkUserId: user?.id,
-    })
+  // async function onNoteCreated(content: string) {
+  //   const response = await api.post<Note>('/notes', {
+  //     date: new Date(),
+  //     content,
+  //     clerkUserId: user?.id,
+  //   })
 
-    const newNote = {
-      id: response.data.id,
-      date: new Date(),
-      content,
-    }
+  //   const newNote = {
+  //     id: response.data.id,
+  //     date: new Date(),
+  //     content,
+  //   }
 
-    const notesArray = [newNote, ...notes]
+  //   const notesArray = [newNote, ...notes]
 
-    setNotes(notesArray)
+  //   setNotes(notesArray)
 
-    localStorage.setItem('@nlw-expert/notes', JSON.stringify(notesArray))
-  }
+  //   localStorage.setItem('@nlw-expert/notes', JSON.stringify(notesArray))
+  // }
 
-  function onNoteDeleted(id: string) {
-    const notesArray = notes.filter((note) => note.id !== id)
+  // function onNoteDeleted(id: string) {
+  //   const notesArray = notes.filter((note) => note.id !== id)
 
-    setNotes(notesArray)
+  //   setNotes(notesArray)
 
-    localStorage.setItem('@nlw-expert/notes', JSON.stringify(notesArray))
-  }
+  //   localStorage.setItem('@nlw-expert/notes', JSON.stringify(notesArray))
+  // }
 
   function handleSearch(event: ChangeEvent<HTMLInputElement>) {
     const query = event.target.value
@@ -62,7 +52,7 @@ export function Home() {
 
   const filteredNotes =
     search !== ''
-      ? notes.filter((note) =>
+      ? notes?.filter((note) =>
           note.content.toLocaleLowerCase().includes(search.toLocaleLowerCase()),
         )
       : notes
@@ -86,13 +76,12 @@ export function Home() {
       <div className="h-px bg-slate-700" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-[250px] gap-6">
-        <NewNoteCard onNoteCreated={onNoteCreated} />
+        <NewNoteCard />
 
-        {filteredNotes.map((note) => {
-          return (
-            <NoteCard key={note.id} note={note} onNoteDeleted={onNoteDeleted} />
-          )
-        })}
+        {filteredNotes &&
+          filteredNotes.map((note) => {
+            return <NoteCard key={note.id} note={note} />
+          })}
       </div>
     </div>
   )
