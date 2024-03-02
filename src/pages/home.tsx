@@ -16,34 +16,6 @@ export function Home() {
     queryFn: () => getNotes({ clerkUserId: user?.id }),
   })
 
-  // async function onNoteCreated(content: string) {
-  //   const response = await api.post<Note>('/notes', {
-  //     date: new Date(),
-  //     content,
-  //     clerkUserId: user?.id,
-  //   })
-
-  //   const newNote = {
-  //     id: response.data.id,
-  //     date: new Date(),
-  //     content,
-  //   }
-
-  //   const notesArray = [newNote, ...notes]
-
-  //   setNotes(notesArray)
-
-  //   localStorage.setItem('@nlw-expert/notes', JSON.stringify(notesArray))
-  // }
-
-  // function onNoteDeleted(id: string) {
-  //   const notesArray = notes.filter((note) => note.id !== id)
-
-  //   setNotes(notesArray)
-
-  //   localStorage.setItem('@nlw-expert/notes', JSON.stringify(notesArray))
-  // }
-
   function handleSearch(event: ChangeEvent<HTMLInputElement>) {
     const query = event.target.value
 
